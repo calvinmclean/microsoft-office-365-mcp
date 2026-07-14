@@ -1,0 +1,21 @@
+name: Promote contact to production
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  promote-production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install crane
+        uses: imjasonh/setup-crane@v0.4
+
+      - name: Log in to GitHub Container Registry
+        run: crane auth login ghcr.io -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Promote main as latest
+        run: crane tag ghcr.io/${{ github.repository }}/microsoft365-contact:main latest

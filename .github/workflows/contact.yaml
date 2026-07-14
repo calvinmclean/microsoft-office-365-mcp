@@ -38,7 +38,7 @@ jobs:
           pull: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository }}/microsoft365-contact:latest
+            ghcr.io/${{ github.repository }}/microsoft365-contact:main
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.8.1
@@ -48,7 +48,7 @@ jobs:
       - name: Sign Images
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-          TAGS: ghcr.io/${{ github.repository }}/microsoft365-contact:latest
+          TAGS: ghcr.io/${{ github.repository }}/microsoft365-contact:main
         run: |
           images=""
           for tag in ${TAGS}; do
