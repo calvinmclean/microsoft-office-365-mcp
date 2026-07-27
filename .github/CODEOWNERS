@@ -1,0 +1,14 @@
+
+# Dependabot dependency ownership
+/calendar/go.mod @obot-platform/obot-backend
+/calendar/go.sum @obot-platform/obot-backend
+/contact/go.mod @obot-platform/obot-backend
+/contact/go.sum @obot-platform/obot-backend
+/excel/go.mod @obot-platform/obot-backend
+/excel/go.sum @obot-platform/obot-backend
+/onedrive/go.mod @obot-platform/obot-backend
+/onedrive/go.sum @obot-platform/obot-backend
+/outlook/pyproject.toml @obot-platform/obot-backend
+/outlook/uv.lock @obot-platform/obot-backend
+/word/go.mod @obot-platform/obot-backend
+/word/go.sum @obot-platform/obot-backend
