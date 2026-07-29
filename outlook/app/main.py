@@ -1,4 +1,3 @@
-import asyncio
 from typing import Annotated, Literal, Optional
 
 from fastmcp import FastMCP
@@ -28,12 +27,7 @@ from .graph import (
 from .group_mcp import group_mcp
 from .utils import message_to_dict, message_to_string, post_to_string
 
-mcp = FastMCP(
-    name="OutlookMailMCP",
-    on_duplicate_tools="error",
-    on_duplicate_resources="warn",
-    on_duplicate_prompts="replace",
-)
+mcp = FastMCP(name="OutlookMailMCP")
 
 
 @mcp.custom_route("/health", methods=["GET"])
@@ -41,10 +35,10 @@ async def health_check(request: Request):
     return JSONResponse({"status": "healthy"})
 
 
-# Server composition - import group tools
-async def setup_server():
-    """Setup server composition by importing group tools."""
-    await mcp.import_server(group_mcp)
+# Server composition - mount group tools
+def setup_server():
+    """Set up server composition by mounting group tools."""
+    mcp.mount(group_mcp)
 
 
 @mcp.tool(name="list_mail_folders")
@@ -382,7 +376,7 @@ async def list_attachments_tool(
         raise ToolError(f"Failed to list attachments: {e}")
 
 
-@mcp.tool(name="download_attachment", enabled=False)
+@mcp.tool(name="download_attachment")
 async def download_attachment_tool(
     email_id: Annotated[
         str, Field(description="The ID of the email to get the attachment from.")
@@ -438,9 +432,13 @@ async def read_attachment_tool(
         raise ToolError(f"Failed to read attachment: {e}")
 
 
+# FastMCP 3 controls tool visibility at the server level.
+mcp.disable(names={"download_attachment"})
+
+
 def streamable_http_server():
-    """Main entry point for the Gmail MCP server."""
-    asyncio.run(setup_server())
+    """Main entry point for the Outlook MCP server."""
+    setup_server()
     mcp.run(
         transport="streamable-http",  # fixed to streamable-http
         host="0.0.0.0",

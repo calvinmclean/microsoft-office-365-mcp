@@ -12,4 +12,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: "true"
+      - uses: astral-sh/setup-uv@v5
+      - name: Verify Outlook MCP imports and server composition
+        working-directory: outlook
+        run: |
+          uv sync --frozen
+          uv run python -B - <<'PY'
+          import asyncio
+
+          from app.main import mcp, setup_server
+
+
+          async def smoke_test():
+              setup_server()
+              tool_names = {tool.name for tool in await mcp.list_tools()}
+              assert {"list_mail_folders", "list_groups"} <= tool_names
+              assert "download_attachment" not in tool_names
+
+
+          asyncio.run(smoke_test())
+          PY

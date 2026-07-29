@@ -19,12 +19,7 @@ from .graph import (
 from .utils import post_to_string
 
 # Create the group mailbox MCP server
-group_mcp = FastMCP(
-    name="OutlookGroupMCP",
-    on_duplicate_tools="error",
-    on_duplicate_resources="warn",
-    on_duplicate_prompts="replace",
-)
+group_mcp = FastMCP(name="OutlookGroupMCP")
 
 
 @group_mcp.tool(name="list_groups")
