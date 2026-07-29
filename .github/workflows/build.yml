@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.0'
+      - name: Build Go MCP servers
+        run: make go-test-build
       - uses: astral-sh/setup-uv@v5
       - name: Verify Outlook MCP imports and server composition
         working-directory: outlook
