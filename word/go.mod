@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	code.sajari.com/docconv/v2 v2.0.0-pre.4
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.16.0
-	github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a
+	github.com/gomarkdown/markdown v0.0.0-20260411013819-759bbc3e3207
 	github.com/google/jsonschema-go v0.4.2
 	github.com/microsoft/kiota-abstractions-go v1.9.2
 	github.com/microsoftgraph/msgraph-sdk-go v1.51.0
