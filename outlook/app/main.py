@@ -3,8 +3,10 @@ from typing import Annotated, Literal, Optional
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field
+from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from .client import create_client, get_access_token
 from .global_config import SCOPES
@@ -26,6 +28,23 @@ from .graph import (
 )
 from .group_mcp import group_mcp
 from .utils import message_to_dict, message_to_string, post_to_string
+
+MCP_PATH = "/mcp/outlook"
+
+
+class LegacyTrailingSlashMiddleware:
+    def __init__(self, app: ASGIApp, path: str):
+        self.app = app
+        self.path = path
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "http" and scope["path"] == f"{self.path}/":
+            scope = dict(scope)
+            scope["path"] = self.path
+            scope["raw_path"] = self.path.encode()
+
+        await self.app(scope, receive, send)
+
 
 mcp = FastMCP(name="OutlookMailMCP")
 
@@ -443,7 +462,8 @@ def streamable_http_server():
         transport="streamable-http",  # fixed to streamable-http
         host="0.0.0.0",
         port=9000,
-        path="/mcp/outlook",
+        path=MCP_PATH,
+        middleware=[Middleware(LegacyTrailingSlashMiddleware, path=MCP_PATH)],
     )
 
 
