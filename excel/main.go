@@ -27,6 +27,18 @@ import (
 
 var httpAddr = flag.String("http", ":9000", "HTTP address to listen on for streamable HTTP server")
 
+// normalizeRootTrailingSlashes prevents net/http from redirecting legacy OAuth
+// proxy requests that append extra slashes to the root MCP endpoint.
+func normalizeRootTrailingSlashes(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Trim(r.URL.Path, "/") == "" {
+			r.URL.Path = "/"
+			r.URL.RawPath = ""
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // StaticTokenCredential implements azcore.TokenCredential
 type StaticTokenCredential struct {
 	token string
@@ -755,7 +767,7 @@ func main() {
 		// Handle all other paths with MCP handler
 		mux.Handle("/", mcpHandler)
 
-		if err := http.ListenAndServe(*httpAddr, mux); err != nil {
+		if err := http.ListenAndServe(*httpAddr, normalizeRootTrailingSlashes(mux)); err != nil {
 			log.Fatal(err)
 		}
 	} else {

@@ -29,6 +29,18 @@ import (
 
 var httpAddr = flag.String("http", ":9000", "HTTP address to listen on for streamable HTTP server")
 
+// normalizeRootTrailingSlashes prevents net/http from redirecting legacy OAuth
+// proxy requests that append extra slashes to the root MCP endpoint.
+func normalizeRootTrailingSlashes(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Trim(r.URL.Path, "/") == "" {
+			r.URL.Path = "/"
+			r.URL.RawPath = ""
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // StaticTokenCredential implements azcore.TokenCredential
 type StaticTokenCredential struct {
 	token string
@@ -485,7 +497,7 @@ func (c *CalendarMCPServer) DeleteEvent(ctx context.Context, req *mcp.CallToolRe
 			return &mcp.CallToolResult{
 				Content: []mcp.Content{
 					&mcp.TextContent{
-						Text: fmt.Sprintf("Event series deleted successfully"),
+						Text: "Event series deleted successfully",
 					},
 				},
 			}, nil, nil
@@ -579,13 +591,13 @@ func (c *CalendarMCPServer) GetEventDetails(ctx context.Context, req *mcp.CallTo
 
 	// Extract showAs, sensitivity, importance
 	if showAs := event.GetShowAs(); showAs != nil {
-		eventInfo.ShowAs = string(*showAs)
+		eventInfo.ShowAs = showAs.String()
 	}
 	if sensitivity := event.GetSensitivity(); sensitivity != nil {
-		eventInfo.Sensitivity = string(*sensitivity)
+		eventInfo.Sensitivity = sensitivity.String()
 	}
 	if importance := event.GetImportance(); importance != nil {
-		eventInfo.Importance = string(*importance)
+		eventInfo.Importance = importance.String()
 	}
 
 	// Extract categories
@@ -612,11 +624,11 @@ func (c *CalendarMCPServer) GetEventDetails(ctx context.Context, req *mcp.CallTo
 					Email: deref(email.GetAddress()),
 				}
 				if attendeeType := attendee.GetTypeEscaped(); attendeeType != nil {
-					attendeeInfo.Type = string(*attendeeType)
+					attendeeInfo.Type = attendeeType.String()
 				}
 				if status := attendee.GetStatus(); status != nil {
 					if response := status.GetResponse(); response != nil {
-						attendeeInfo.Status = string(*response)
+						attendeeInfo.Status = response.String()
 					}
 				}
 				eventInfo.Attendees = append(eventInfo.Attendees, attendeeInfo)
@@ -647,7 +659,7 @@ func (c *CalendarMCPServer) GetEventDetails(ctx context.Context, req *mcp.CallTo
 		if pattern := recurrence.GetPattern(); pattern != nil {
 			patternMap := make(map[string]interface{})
 			if recurrenceType := pattern.GetTypeEscaped(); recurrenceType != nil {
-				patternMap["type"] = string(*recurrenceType)
+				patternMap["type"] = recurrenceType.String()
 			}
 			if interval := pattern.GetInterval(); interval != nil {
 				patternMap["interval"] = *interval
@@ -655,7 +667,7 @@ func (c *CalendarMCPServer) GetEventDetails(ctx context.Context, req *mcp.CallTo
 			if daysOfWeek := pattern.GetDaysOfWeek(); len(daysOfWeek) > 0 {
 				days := make([]string, len(daysOfWeek))
 				for i, day := range daysOfWeek {
-					days[i] = string(day)
+					days[i] = day.String()
 				}
 				patternMap["daysOfWeek"] = days
 			}
@@ -1471,7 +1483,7 @@ func main() {
 		// Handle all other paths with MCP handler
 		mux.Handle("/", mcpHandler)
 
-		if err := http.ListenAndServe(*httpAddr, mux); err != nil {
+		if err := http.ListenAndServe(*httpAddr, normalizeRootTrailingSlashes(mux)); err != nil {
 			log.Fatal(err)
 		}
 	} else {
