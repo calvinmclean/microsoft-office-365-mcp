@@ -1,6 +1,6 @@
 module github.com/obot-platform/microsoft365/word-mcp-go
 
-go 1.25.0
+go 1.27.1
 
 require (
 	code.sajari.com/docconv/v2 v2.0.0-pre.4

@@ -3,17 +3,16 @@ package usage
 import (
 	"context"
 	"crypto/hmac"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+	"uuid"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -48,19 +47,9 @@ func New(serverID, displayName, provider string) *Telemetry {
 	return &Telemetry{
 		serverID: serverID, displayName: displayName, provider: provider,
 		hmacKey: key, scrapeToken: token, enabled: len(key) > 0 && token != "",
-		instanceID: newUUID(), startedAt: time.Now().UTC().Format(time.RFC3339Nano),
+		instanceID: uuid.New().String(), startedAt: time.Now().UTC().Format(time.RFC3339Nano),
 		day: utcDay(), calls: map[string]uint64{}, errors: map[string]uint64{}, users: map[string]struct{}{},
 	}
-}
-
-func newUUID() string {
-	var value [16]byte
-	if _, err := rand.Read(value[:]); err != nil {
-		panic(fmt.Sprintf("generate telemetry instance ID: %v", err))
-	}
-	value[6] = (value[6] & 0x0f) | 0x40
-	value[8] = (value[8] & 0x3f) | 0x80
-	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", value[0:4], value[4:6], value[6:8], value[8:10], value[10:16])
 }
 
 func utcDay() string { return time.Now().UTC().Format("2006-01-02") }

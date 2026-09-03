@@ -1,6 +1,6 @@
 module github.com/obot-platform/microsoft365/onedrive-mcp-go
 
-go 1.25.0
+go 1.27.1
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.16.0
