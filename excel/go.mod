@@ -8,7 +8,10 @@ require (
 	github.com/microsoft/kiota-abstractions-go v1.9.2
 	github.com/microsoftgraph/msgraph-sdk-go v1.51.0
 	github.com/modelcontextprotocol/go-sdk v1.4.1
+	github.com/obot-platform/microsoft-office-365-mcp/metrics v0.0.0
 )
+
+replace github.com/obot-platform/microsoft-office-365-mcp/metrics => ../metrics
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect

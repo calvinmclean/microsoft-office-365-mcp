@@ -1347,6 +1347,11 @@ wheels = [
 ]
 
 [[package]]
+name = "obot-mcp-usage"
+version = "0.1.0"
+source = { directory = "../metrics-python" }
+
+[[package]]
 name = "obot-outlook-mcp"
 version = "0.1.0"
 source = { editable = "." }
@@ -1358,6 +1363,7 @@ dependencies = [
     { name = "markdown" },
     { name = "markitdown", extra = ["all"] },
     { name = "msgraph-sdk" },
+    { name = "obot-mcp-usage" },
     { name = "typing-extensions" },
 ]
 
@@ -1375,6 +1381,7 @@ requires-dist = [
     { name = "markdown", specifier = ">=3.8.2" },
     { name = "markitdown", extras = ["all"], specifier = ">=0.1.2" },
     { name = "msgraph-sdk", specifier = ">=1.37.0" },
+    { name = "obot-mcp-usage", directory = "../metrics-python" },
     { name = "typing-extensions", specifier = ">=4.14.1" },
 ]
 

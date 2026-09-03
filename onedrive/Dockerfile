@@ -1,13 +1,14 @@
 FROM golang:1.25.0-alpine AS builder
 
-WORKDIR /app
+WORKDIR /src/onedrive
 
-COPY go.mod go.sum ./
+COPY onedrive/go.mod onedrive/go.sum ./
+COPY metrics /src/metrics
 RUN go mod download
 
-COPY . .
+COPY onedrive/. .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o onedrive-mcp-go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /onedrive-mcp-go .
 
 FROM alpine:latest
 
@@ -15,7 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /app/onedrive-mcp-go .
+COPY --from=builder /onedrive-mcp-go .
 
 EXPOSE 9000
 

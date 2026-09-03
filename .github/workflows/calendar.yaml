@@ -9,6 +9,7 @@ on:
   push:
     paths:
       - "calendar/**"
+      - "metrics/**"
     branches:
       - main
 
@@ -33,7 +34,8 @@ jobs:
         id: build-and-push
         with:
           project: bbqjs4tj1g
-          context: ./calendar
+          context: .
+          file: ./calendar/Dockerfile
           push: true
           pull: true
           platforms: linux/amd64,linux/arm64

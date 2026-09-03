@@ -10,6 +10,7 @@ on:
   push:
     paths:
       - "outlook/**"
+      - "metrics-python/**"
     branches:
       - main
 
@@ -34,7 +35,8 @@ jobs:
         id: build-and-push
         with:
           project: bbqjs4tj1g
-          context: ./outlook
+          context: .
+          file: ./outlook/Dockerfile
           push: true
           pull: true
           platforms: linux/amd64,linux/arm64

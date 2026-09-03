@@ -8,6 +8,7 @@ dependencies = [
     "azure-core>=1.38.0",
     "azure-identity>=1.23.0",
     "fastmcp>=3.2.0",
+    "obot-mcp-usage",
     "markdown>=3.8.2",
     "markitdown[all]>=0.1.2",
     "msgraph-sdk>=1.37.0",
@@ -31,6 +32,9 @@ source-exclude = [
     "*.pyd",
     ".DS_Store",
 ]
+
+[tool.uv.sources]
+obot-mcp-usage = { path = "../metrics-python" }
 
 [dependency-groups]
 dev = [

@@ -1,0 +1,14 @@
+[project]
+name = "obot-mcp-usage"
+version = "0.1.0"
+description = "Privacy-preserving in-process usage telemetry for Obot-hosted MCP servers"
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.7.21,<0.8.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "obot_mcp_usage"
+module-root = "."

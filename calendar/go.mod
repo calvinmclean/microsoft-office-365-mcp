@@ -7,7 +7,10 @@ require (
 	github.com/google/jsonschema-go v0.4.2
 	github.com/microsoftgraph/msgraph-sdk-go v1.55.0
 	github.com/modelcontextprotocol/go-sdk v1.4.1
+	github.com/obot-platform/microsoft-office-365-mcp/metrics v0.0.0
 )
+
+replace github.com/obot-platform/microsoft-office-365-mcp/metrics => ../metrics
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
