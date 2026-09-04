@@ -23,6 +23,7 @@ import (
 	"github.com/microsoftgraph/msgraph-sdk-go/drives"
 	"github.com/microsoftgraph/msgraph-sdk-go/models"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	usage "github.com/obot-platform/microsoft-office-365-mcp/metrics"
 	util "github.com/obot-platform/tools/microsoft365/excel-mcp-go/utils"
 )
 
@@ -684,6 +685,7 @@ func convertToCSV(data [][]any) (string, error) {
 
 func main() {
 	flag.Parse()
+	telemetry := usage.New("microsoft-excel", "Microsoft Excel", "microsoft")
 
 	// Create server factory that extracts token from each request
 	serverFactory := func(req *http.Request) *mcp.Server {
@@ -698,6 +700,7 @@ func main() {
 		}
 
 		server := mcp.NewServer(&mcp.Implementation{Name: "excel-mcp-server"}, nil)
+		server.AddReceivingMiddleware(telemetry.Middleware(req.Header))
 
 		// Create JSON schemas for the tools
 		listWorksheetsSchema, _ := jsonschema.For[ListWorksheetsArgs](nil)
@@ -772,6 +775,7 @@ func main() {
 
 		// Create a custom multiplexer
 		mux := http.NewServeMux()
+		mux.Handle("/internal/metrics/usage", telemetry.Handler())
 
 		// Handle /health with custom handler
 		mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

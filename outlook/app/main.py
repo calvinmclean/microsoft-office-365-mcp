@@ -7,6 +7,7 @@ from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
+from obot_mcp_usage import UsageTelemetry
 
 from .client import create_client, get_access_token
 from .global_config import SCOPES
@@ -48,11 +49,18 @@ class LegacyTrailingSlashMiddleware:
 
 
 mcp = FastMCP(name="OutlookMailMCP")
+usage = UsageTelemetry("microsoft-outlook", "Microsoft Outlook", "microsoft")
+mcp.add_middleware(usage)
 
 
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request):
     return JSONResponse({"status": "healthy"})
+
+
+@mcp.custom_route("/internal/metrics/usage", methods=["GET"])
+async def usage_metrics(request: Request):
+    return await usage.handle_request(request)
 
 
 # Server composition - mount group tools

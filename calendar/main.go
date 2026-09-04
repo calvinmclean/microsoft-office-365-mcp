@@ -26,6 +26,7 @@ import (
 	"github.com/microsoftgraph/msgraph-sdk-go/models"
 	"github.com/microsoftgraph/msgraph-sdk-go/users"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	usage "github.com/obot-platform/microsoft-office-365-mcp/metrics"
 )
 
 var httpAddr = flag.String("http", ":9000", "HTTP address to listen on for streamable HTTP server")
@@ -1389,6 +1390,7 @@ func ExtractTokenFromRequest(req *http.Request) (string, error) {
 
 func main() {
 	flag.Parse()
+	telemetry := usage.New("microsoft-calendar", "Microsoft Calendar", "microsoft")
 
 	// Create server factory that extracts token from each request
 	serverFactory := func(req *http.Request) *mcp.Server {
@@ -1397,6 +1399,7 @@ func main() {
 			log.Printf("Failed to extract token from request: %v", err)
 			// Return a server that will fail gracefully
 			server := mcp.NewServer(&mcp.Implementation{Name: "calendar-mcp-server"}, nil)
+			server.AddReceivingMiddleware(telemetry.Middleware(req.Header))
 			return server
 		}
 
@@ -1405,10 +1408,12 @@ func main() {
 			log.Printf("Failed to create Calendar MCP server: %v", err)
 			// Return a server that will fail gracefully
 			server := mcp.NewServer(&mcp.Implementation{Name: "calendar-mcp-server"}, nil)
+			server.AddReceivingMiddleware(telemetry.Middleware(req.Header))
 			return server
 		}
 
 		server := mcp.NewServer(&mcp.Implementation{Name: "calendar-mcp-server"}, nil)
+		server.AddReceivingMiddleware(telemetry.Middleware(req.Header))
 
 		// Create JSON schemas for the tools
 		listEventsSchema, _ := jsonschema.For[ListEventsArgs](nil)
@@ -1488,6 +1493,7 @@ func main() {
 
 		// Create a custom multiplexer
 		mux := http.NewServeMux()
+		mux.Handle("/internal/metrics/usage", telemetry.Handler())
 
 		// Handle /health with custom handler
 		mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

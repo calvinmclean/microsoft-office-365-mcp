@@ -1,16 +1,17 @@
 FROM golang:1.25.0-alpine AS builder
 
-WORKDIR /app
+WORKDIR /src/word
 
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates
 
-COPY go.mod go.sum ./
+COPY word/go.mod word/go.sum ./
+COPY metrics /src/metrics
 RUN go mod download
 
-COPY . .
+COPY word/. .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o word-mcp-go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /word-mcp-go .
 
 FROM alpine:latest
 
@@ -35,7 +36,7 @@ RUN mkdir -p /tmp && chmod 1777 /tmp
 
 WORKDIR /root/
 
-COPY --from=builder /app/word-mcp-go .
+COPY --from=builder /word-mcp-go .
 
 # Make sure the binary is executable
 RUN chmod +x word-mcp-go

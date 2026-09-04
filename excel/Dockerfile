@@ -1,13 +1,14 @@
 FROM golang:1.25.0-alpine AS builder
 
-WORKDIR /app
+WORKDIR /src/excel
 
-COPY go.mod go.sum ./
+COPY excel/go.mod excel/go.sum ./
+COPY metrics /src/metrics
 RUN go mod download
 
-COPY . .
+COPY excel/. .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o excel-mcp-go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /excel-mcp-go .
 
 FROM alpine:latest
 
@@ -15,7 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /app/excel-mcp-go .
+COPY --from=builder /excel-mcp-go .
 
 EXPOSE 9000
 

@@ -1,13 +1,14 @@
 FROM golang:1.25.0-alpine AS builder
 
-WORKDIR /app
+WORKDIR /src/contact
 
-COPY go.mod go.sum ./
+COPY contact/go.mod contact/go.sum ./
+COPY metrics /src/metrics
 RUN go mod download
 
-COPY . .
+COPY contact/. .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o contact-mcp-go .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /contact-mcp-go .
 
 FROM alpine:latest
 
@@ -15,7 +16,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-COPY --from=builder /app/contact-mcp-go .
+COPY --from=builder /contact-mcp-go .
 
 EXPOSE 9000
 
