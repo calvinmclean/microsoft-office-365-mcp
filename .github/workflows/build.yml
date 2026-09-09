@@ -17,6 +17,8 @@ jobs:
           go-version: '1.25.0'
       - name: Build Go MCP servers
         run: make go-test-build
+      - name: Test usage telemetry
+        run: go -C metrics test -race ./...
       - uses: astral-sh/setup-uv@v5
       - name: Verify Outlook MCP imports and server composition
         working-directory: outlook
@@ -37,3 +39,8 @@ jobs:
 
           asyncio.run(smoke_test())
           PY
+      - name: Test Python usage telemetry
+        working-directory: outlook
+        env:
+          PYTHONPATH: ../metrics-python
+        run: uv run python -m unittest discover -s ../metrics-python/tests

@@ -457,30 +457,30 @@ func main() {
 		getContactSchema, _ := jsonschema.For[GetContactArgs](nil)
 
 		// Register all tools with proper schemas - matching tool.gpt exactly
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_contacts",
 			Description: "List all Outlook contacts available to the user.",
 		}, contactServer.ListContacts)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "create_contact",
 			Description: "Create a new Outlook contact.",
 			InputSchema: createContactSchema,
 		}, contactServer.CreateContact)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "update_contact",
 			Description: "Update an existing Outlook contact.",
 			InputSchema: updateContactSchema,
 		}, contactServer.UpdateContact)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "delete_contact",
 			Description: "Delete an existing Outlook contact.",
 			InputSchema: deleteContactSchema,
 		}, contactServer.DeleteContact)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_contact",
 			Description: "Get the details of an existing Outlook contact.",
 			InputSchema: getContactSchema,

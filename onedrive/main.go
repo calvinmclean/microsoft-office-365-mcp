@@ -818,71 +818,71 @@ func main() {
 		listPermissionsSchema, _ := jsonschema.For[ListPermissionsArgs](nil)
 
 		// Register all tools with proper schemas
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_all_drives",
 			Description: "Lists all available OneDrive drives for a user, including the user's personal drive and shared organization drives.",
 		}, oneDriveServer.ListAllDrives)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_drive",
 			Description: "Gets details about a specific OneDrive drive.",
 			InputSchema: getDriveSchema,
 		}, oneDriveServer.GetDrive)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_drive_items",
 			Description: "Lists items under a specific folder or path in a user's OneDrive.",
 			InputSchema: listDriveItemsSchema,
 		}, oneDriveServer.ListDriveItems)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_shared_with_me_items",
 			Description: "Lists all files and folders that have been shared with the user by others.",
 		}, oneDriveServer.ListSharedWithMeItems)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_drive_item",
 			Description: "Gets details about a specific file in a user's OneDrive.",
 			InputSchema: getDriveItemSchema,
 		}, oneDriveServer.GetDriveItem)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "create_folder",
 			Description: "Creates a new folder under a specific folder or path in a user's OneDrive.",
 			InputSchema: createFolderSchema,
 		}, oneDriveServer.CreateFolder)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "delete_drive_item",
 			Description: "Deletes a file from a user's OneDrive.",
 			InputSchema: deleteDriveItemSchema,
 		}, oneDriveServer.DeleteDriveItem)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "copy_drive_item",
 			Description: "Copies a file from one location to another in a user's OneDrive.",
 			InputSchema: copyDriveItemSchema,
 		}, oneDriveServer.CopyDriveItem)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "move_and_rename_item",
 			Description: "Moves and renames a file in a user's OneDrive.",
 			InputSchema: moveAndRenameItemSchema,
 		}, oneDriveServer.MoveAndRenameItem)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "add_permission",
 			Description: "Grants permission to users via email for a specific file in OneDrive.",
 			InputSchema: addPermissionSchema,
 		}, oneDriveServer.AddPermission)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "delete_permission",
 			Description: "Removes a specific permission from a file in OneDrive.",
 			InputSchema: deletePermissionSchema,
 		}, oneDriveServer.DeletePermission)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_permissions",
 			Description: "Lists all permissions for a specific file in OneDrive.",
 			InputSchema: listPermissionsSchema,

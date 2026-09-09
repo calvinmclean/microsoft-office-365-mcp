@@ -1426,59 +1426,59 @@ func main() {
 		respondToEventSchema, _ := jsonschema.For[RespondToEventArgs](nil)
 
 		// Register all tools with proper schemas - matching tool.gpt exactly
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_calendars",
 			Description: "List all calendars available to the user.",
 		}, calendarServer.ListCalendars)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_events_today",
 			Description: "List all events for today in all calendars available to the user.",
 		}, calendarServer.ListEventsToday)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_events",
 			Description: "List all events in the given time frame in all calendars available to the user.",
 			InputSchema: listEventsSchema,
 		}, calendarServer.ListEvents)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "create_event",
 			Description: "Create a new calendar event.",
 			InputSchema: createEventSchema,
 		}, calendarServer.CreateEvent)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_event_details",
 			Description: "Get the details for a particular event.",
 			InputSchema: getEventDetailsSchema,
 		}, calendarServer.GetEventDetails)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_event_attachments",
 			Description: "Download the attachments for a particular event.",
 			InputSchema: getEventAttachmentsSchema,
 		}, calendarServer.GetEventAttachments)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "modify_event_attendees",
 			Description: "Adds or removes attendees from an existing event.",
 			InputSchema: modifyEventAttendeesSchema,
 		}, calendarServer.ModifyEventAttendees)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "delete_event",
 			Description: "Delete a calendar event.",
 			InputSchema: deleteEventSchema,
 		}, calendarServer.DeleteEvent)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "search_events",
 			Description: "Search for events based on a query string.",
 			InputSchema: searchEventsSchema,
 		}, calendarServer.SearchEvents)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "respond_to_event",
 			Description: "Accept, tentatively accept, or decline an event invitation.",
 			InputSchema: respondToEventSchema,

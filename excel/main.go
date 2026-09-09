@@ -713,54 +713,54 @@ func main() {
 		getDatesFromSerialsSchema, _ := jsonschema.For[GetDatesFromSerialsArgs](nil)
 
 		// Register all tools with proper schemas
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_workbooks",
 			Description: "Lists all workbooks available to the user.",
 		}, excelServer.ListWorkbooks)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_worksheets",
 			Description: "Lists all worksheets available in a workbook.",
 			InputSchema: listWorksheetsSchema,
 		}, excelServer.ListWorksheets)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_worksheet_data",
 			Description: "Get all the data of a worksheet in a workbook.",
 			InputSchema: getWorksheetDataSchema,
 		}, excelServer.GetWorksheetData)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_worksheet_column_headers",
 			Description: "Get the first 3 rows of a worksheet in a workbook to determine if there are column headers.",
 			InputSchema: getWorksheetColumnHeadersSchema,
 		}, excelServer.GetWorksheetColumnHeaders)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_worksheet_tables",
 			Description: "Get the names and IDs of the tables on a worksheet in a workbook.",
 			InputSchema: getWorksheetTablesSchema,
 		}, excelServer.GetWorksheetTables)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "add_worksheet_row",
 			Description: "Adds rows to an existing worksheet in a workbook.",
 			InputSchema: addWorksheetRowSchema,
 		}, excelServer.AddWorksheetRow)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "add_worksheet_column",
 			Description: "Adds a column to an existing worksheet in a workbook.",
 			InputSchema: addWorksheetColumnSchema,
 		}, excelServer.AddWorksheetColumn)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "create_worksheet",
 			Description: "Creates a new worksheet in a workbook.",
 			InputSchema: createWorksheetSchema,
 		}, excelServer.CreateWorksheet)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "get_dates_from_serials",
 			Description: "Gets the date in 'YYYY-MM-DD' format from Excel serial numbers",
 			InputSchema: getDatesFromSerialsSchema,
