@@ -639,18 +639,18 @@ func main() {
 		writeDocSchema, _ := jsonschema.For[WriteDocArgs](nil)
 
 		// Register all tools with proper schemas - only tools that exist in actual Word implementation
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "list_docs",
 			Description: "List all Microsoft Word documents available to the user in OneDrive",
 		}, wordServer.ListDocs)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "read_doc",
 			Description: "Read the contents of a Microsoft Word document from OneDrive",
 			InputSchema: readDocSchema,
 		}, wordServer.ReadDoc)
 
-		mcp.AddTool(server, &mcp.Tool{
+		usage.AddTool(server, &mcp.Tool{
 			Name:        "write_doc",
 			Description: "Write a Microsoft Word document in OneDrive with the specified title and optional content. The file will be created if it doesn't exist. It will be overwritten if it already exists and overwrite_if_exists is true.",
 			InputSchema: writeDocSchema,

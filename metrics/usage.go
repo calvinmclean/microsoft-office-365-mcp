@@ -37,6 +37,7 @@ type Telemetry struct {
 	day               string
 	calls             map[string]uint64
 	errors            map[string]uint64
+	errorCategories   map[string]map[string]uint64
 	users             map[string]struct{}
 	unidentifiedCalls uint64
 }
@@ -48,7 +49,7 @@ func New(serverID, displayName, provider string) *Telemetry {
 		serverID: serverID, displayName: displayName, provider: provider,
 		hmacKey: key, scrapeToken: token, enabled: len(key) > 0 && token != "",
 		instanceID: uuid.New().String(), startedAt: time.Now().UTC().Format(time.RFC3339Nano),
-		day: utcDay(), calls: map[string]uint64{}, errors: map[string]uint64{}, users: map[string]struct{}{},
+		day: utcDay(), calls: map[string]uint64{}, errors: map[string]uint64{}, errorCategories: map[string]map[string]uint64{}, users: map[string]struct{}{},
 	}
 }
 
@@ -60,6 +61,7 @@ func (t *Telemetry) rollDay() string {
 		t.day = day
 		t.calls = map[string]uint64{}
 		t.errors = map[string]uint64{}
+		t.errorCategories = map[string]map[string]uint64{}
 		t.users = map[string]struct{}{}
 		t.unidentifiedCalls = 0
 	}
@@ -106,15 +108,24 @@ func (t *Telemetry) Middleware(headers http.Header) mcp.Middleware {
 			}
 			t.mu.Unlock()
 
-			result, err := next(ctx, method, req)
+			state := &callErrorCategory{}
+			result, err := next(context.WithValue(ctx, errorCategoryContextKey{}, state), method, req)
 			failed := err != nil
-			if toolResult, ok := result.(*mcp.CallToolResult); ok && toolResult.IsError {
+			if toolResult, ok := result.(*mcp.CallToolResult); ok && toolResult != nil && toolResult.IsError {
 				failed = true
 			}
 			if failed {
+				category := state.category
+				if category == "" {
+					category = classifyError(err, result)
+				}
 				t.mu.Lock()
 				if t.rollDay() == day {
 					t.errors[tool]++
+					if t.errorCategories[tool] == nil {
+						t.errorCategories[tool] = map[string]uint64{}
+					}
+					t.errorCategories[tool][category]++
 				}
 				t.mu.Unlock()
 			}
@@ -147,7 +158,11 @@ func (t *Telemetry) Handler() http.Handler {
 		sort.Strings(tools)
 		calls := make([]map[string]any, 0, len(tools))
 		for _, tool := range tools {
-			calls = append(calls, map[string]any{"tool": tool, "calls": t.calls[tool], "errors": t.errors[tool]})
+			categories := t.errorCategories[tool]
+			if categories == nil {
+				categories = map[string]uint64{}
+			}
+			calls = append(calls, map[string]any{"tool": tool, "calls": t.calls[tool], "errors": t.errors[tool], "errorCategories": categories})
 		}
 		users := make([]string, 0, len(t.users))
 		for hash := range t.users {

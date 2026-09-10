@@ -15,6 +15,8 @@ from fastmcp.server.middleware import Middleware, MiddlewareContext
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from .errors import classify_error
+
 MAX_DAILY_USERS = 25_000
 
 
@@ -29,6 +31,7 @@ class UsageTelemetry(Middleware):
         self._day = self._utc_day()
         self._calls: dict[str, int] = defaultdict(int)
         self._errors: dict[str, int] = defaultdict(int)
+        self._error_categories: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
         self._users: set[str] = set()
         self._unidentified_calls = 0
         self._lock = asyncio.Lock()
@@ -41,6 +44,7 @@ class UsageTelemetry(Middleware):
         day = self._utc_day()
         if day != self._day:
             self._day, self._calls, self._errors, self._users, self._unidentified_calls = day, defaultdict(int), defaultdict(int), set(), 0
+            self._error_categories.clear()
         return day
 
     def _identity_hash(self, day: str) -> str | None:
@@ -64,15 +68,19 @@ class UsageTelemetry(Middleware):
                 self._unidentified_calls += 1
         try:
             result = await call_next(context)
-        except BaseException:
+        except BaseException as error:
+            category = classify_error(error=error)
             async with self._lock:
                 if self._roll_day() == day:
                     self._errors[tool] += 1
+                    self._error_categories[tool][category] += 1
             raise
         if bool(getattr(result, "isError", False)) or bool(getattr(result, "is_error", False)):
+            category = classify_error(result=result)
             async with self._lock:
                 if self._roll_day() == day:
                     self._errors[tool] += 1
+                    self._error_categories[tool][category] += 1
         return result
 
     async def handle_request(self, request: Request) -> JSONResponse:
@@ -86,6 +94,6 @@ class UsageTelemetry(Middleware):
                 "schemaVersion": "v1",
                 "server": {"id": self.server_id, "displayName": self.display_name, "provider": self.provider},
                 "instance": {"id": self._instance_id, "startedAt": self._started_at}, "day": self._day,
-                "calls": [{"tool": tool, "calls": calls, "errors": self._errors.get(tool, 0)} for tool, calls in sorted(self._calls.items())],
+                "calls": [{"tool": tool, "calls": calls, "errors": self._errors.get(tool, 0), "errorCategories": dict(self._error_categories.get(tool, {}))} for tool, calls in sorted(self._calls.items())],
                 "userHashes": sorted(self._users), "unidentifiedCalls": self._unidentified_calls,
             })
