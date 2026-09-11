@@ -2,12 +2,13 @@ version: "3.8"
 services: 
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: outlook/Dockerfile
     ports:
       - "9000:9000"
     environment:
       PORT: 9000
+      MCP_PATH: /mcp
   postgres_oauth:
     image: postgres:15
     container_name: oauth_db
@@ -21,14 +22,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   oauth-proxy:
-    image: ghcr.io/obot-platform/mcp-oauth-proxy:master
+    image: ghcr.io/obot-platform/mcp-oauth-proxy:v0.0.3
     environment:
+      HOST: "0.0.0.0"
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       DATABASE_DSN: "postgres://oauth_user:oauth_password@postgres_oauth:5432/oauth_proxy?sslmode=disable"
       SCOPES_SUPPORTED: "openid, offline_access, https://graph.microsoft.com/Mail.Read, https://graph.microsoft.com/Mail.ReadWrite, https://graph.microsoft.com/Mail.Send, https://graph.microsoft.com/User.Read, https://graph.microsoft.com/MailboxSettings.Read, https://graph.microsoft.com/Files.ReadWrite.All, https://graph.microsoft.com/Group.Read.All, https://graph.microsoft.com/Group.ReadWrite.All"
       OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
       OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
       OAUTH_AUTHORIZE_URL: "https://login.microsoftonline.com/common/v2.0"
-      MCP_SERVER_URL: "http://app:9000/mcp/outlook/"
+      MCP_SERVER_URL: "http://app:9000"
     depends_on:
       - postgres_oauth
     ports:

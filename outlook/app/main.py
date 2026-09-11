@@ -1,3 +1,4 @@
+import os
 from typing import Annotated, Literal, Optional
 
 from fastmcp import FastMCP
@@ -30,7 +31,7 @@ from .graph import (
 from .group_mcp import group_mcp
 from .utils import message_to_dict, message_to_string, post_to_string
 
-MCP_PATH = "/mcp/outlook"
+MCP_PATH = os.getenv("MCP_PATH", "/mcp/outlook")
 
 
 class LegacyTrailingSlashMiddleware:
