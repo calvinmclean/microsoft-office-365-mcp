@@ -17,11 +17,32 @@ func TestStatelessHTTPFromEnv(t *testing.T) {
 		want        bool
 		wantError   bool
 	}{
-		{name: "unset"},
-		{name: "false", value: "false", set: true},
-		{name: "true", value: "true", set: true, want: true},
-		{name: "invalid", value: "sometimes", set: true, wantError: true},
-		{name: "empty", value: "", set: true, wantError: true},
+		{
+			name: "unset",
+		},
+		{
+			name:  "false",
+			value: "false",
+			set:   true,
+		},
+		{
+			name:  "true",
+			value: "true",
+			set:   true,
+			want:  true,
+		},
+		{
+			name:      "invalid",
+			value:     "sometimes",
+			set:       true,
+			wantError: true,
+		},
+		{
+			name:      "empty",
+			value:     "",
+			set:       true,
+			wantError: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -109,12 +130,30 @@ func TestNormalizeTrailingSlashes(t *testing.T) {
 		path string
 		want string
 	}{
-		{path: "/", want: "/"},
-		{path: "//", want: "/"},
-		{path: "///", want: "/"},
-		{path: "/mcp", want: "/mcp"},
-		{path: "/mcp/", want: "/mcp"},
-		{path: "/mcp//", want: "/mcp"},
+		{
+			path: "/",
+			want: "/",
+		},
+		{
+			path: "//",
+			want: "/",
+		},
+		{
+			path: "///",
+			want: "/",
+		},
+		{
+			path: "/mcp",
+			want: "/mcp",
+		},
+		{
+			path: "/mcp/",
+			want: "/mcp",
+		},
+		{
+			path: "/mcp//",
+			want: "/mcp",
+		},
 	}
 
 	for _, tt := range tests {
@@ -146,9 +185,20 @@ func TestNormalizeTrailingSlashesPreservesEscapedSegments(t *testing.T) {
 		wantHandler string
 		wantRawPath string
 	}{
-		{path: "/health/", wantHandler: "health"},
-		{path: "/health%2F", wantHandler: "mcp", wantRawPath: "/health%2F"},
-		{path: "/health%2F/", wantHandler: "mcp", wantRawPath: "/health%2F"},
+		{
+			path:        "/health/",
+			wantHandler: "health",
+		},
+		{
+			path:        "/health%2F",
+			wantHandler: "mcp",
+			wantRawPath: "/health%2F",
+		},
+		{
+			path:        "/health%2F/",
+			wantHandler: "mcp",
+			wantRawPath: "/health%2F",
+		},
 	}
 
 	for _, tt := range tests {
