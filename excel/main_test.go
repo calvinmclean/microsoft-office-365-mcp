@@ -8,7 +8,35 @@ import (
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	usage "github.com/obot-platform/microsoft-office-365-mcp/metrics"
 )
+
+func TestExcelServerSurvivesMissingToken(t *testing.T) {
+	telemetry := usage.New("microsoft-excel", "Microsoft Excel", "microsoft")
+	handler := mcp.NewStreamableHTTPHandler(newExcelServerFactory(telemetry), &mcp.StreamableHTTPOptions{Stateless: true})
+	post := func(token string) *httptest.ResponseRecorder {
+		t.Helper()
+		request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}`))
+		request.Header.Set("Content-Type", "application/json")
+		request.Header.Set("Accept", "application/json, text/event-stream")
+		if token != "" {
+			request.Header.Set("X-Forwarded-Access-Token", token)
+		}
+		response := httptest.NewRecorder()
+		handler.ServeHTTP(response, request)
+		return response
+	}
+
+	missingToken := post("")
+	if missingToken.Code != http.StatusOK || strings.Contains(missingToken.Body.String(), "list_workbooks") {
+		t.Fatalf("missing token status = %d, body = %s", missingToken.Code, missingToken.Body.String())
+	}
+
+	validToken := post("test-token")
+	if validToken.Code != http.StatusOK || !strings.Contains(validToken.Body.String(), "list_workbooks") {
+		t.Errorf("subsequent valid request status = %d, body = %s", validToken.Code, validToken.Body.String())
+	}
+}
 
 func TestStatelessHTTPFromEnv(t *testing.T) {
 	tests := []struct {

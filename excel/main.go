@@ -696,24 +696,23 @@ func statelessHTTPFromEnv() (bool, error) {
 	return stateless, nil
 }
 
-func main() {
-	flag.Parse()
-	stateless, err := statelessHTTPFromEnv()
-	if err != nil {
-		log.Fatal(err)
-	}
-	telemetry := usage.New("microsoft-excel", "Microsoft Excel", "microsoft")
-
+func newExcelServerFactory(telemetry *usage.Telemetry) func(*http.Request) *mcp.Server {
 	// Create server factory that extracts token from each request
-	serverFactory := func(req *http.Request) *mcp.Server {
+	return func(req *http.Request) *mcp.Server {
 		token, err := extractTokenFromRequest(req)
 		if err != nil {
-			log.Fatalf("Failed to extract token from request: %v", err)
+			log.Printf("Failed to extract token from request: %v", err)
+			server := mcp.NewServer(&mcp.Implementation{Name: "excel-mcp-server"}, nil)
+			server.AddReceivingMiddleware(telemetry.Middleware(req.Header))
+			return server
 		}
 
 		excelServer, err := NewExcelMCPServer(token)
 		if err != nil {
-			log.Fatalf("Failed to create Excel MCP server: %v", err)
+			log.Printf("Failed to create Excel MCP server: %v", err)
+			server := mcp.NewServer(&mcp.Implementation{Name: "excel-mcp-server"}, nil)
+			server.AddReceivingMiddleware(telemetry.Middleware(req.Header))
+			return server
 		}
 
 		server := mcp.NewServer(&mcp.Implementation{Name: "excel-mcp-server"}, nil)
@@ -785,6 +784,17 @@ func main() {
 
 		return server
 	}
+}
+
+func main() {
+	flag.Parse()
+	stateless, err := statelessHTTPFromEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
+	telemetry := usage.New("microsoft-excel", "Microsoft Excel", "microsoft")
+
+	serverFactory := newExcelServerFactory(telemetry)
 
 	if *httpAddr != "" {
 		mcpHandler := mcp.NewStreamableHTTPHandler(serverFactory, &mcp.StreamableHTTPOptions{Stateless: stateless})
