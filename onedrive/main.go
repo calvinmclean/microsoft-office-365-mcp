@@ -12,6 +12,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -778,8 +780,24 @@ func ExtractTokenFromRequest(req *http.Request) (string, error) {
 	return "", fmt.Errorf("no access token found in request headers")
 }
 
+func statelessHTTPFromEnv() (bool, error) {
+	value, ok := os.LookupEnv("MCP_STATELESS_HTTP")
+	if !ok {
+		return false, nil
+	}
+	stateless, err := strconv.ParseBool(value)
+	if err != nil {
+		return false, fmt.Errorf("invalid MCP_STATELESS_HTTP value %q: %w", value, err)
+	}
+	return stateless, nil
+}
+
 func main() {
 	flag.Parse()
+	stateless, err := statelessHTTPFromEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
 	telemetry := usage.New("microsoft-onedrive", "Microsoft OneDrive", "microsoft")
 
 	// Create server factory that extracts token from each request
@@ -892,7 +910,7 @@ func main() {
 	}
 
 	if *httpAddr != "" {
-		mcpHandler := mcp.NewStreamableHTTPHandler(serverFactory, nil)
+		mcpHandler := mcp.NewStreamableHTTPHandler(serverFactory, &mcp.StreamableHTTPOptions{Stateless: stateless})
 		log.Printf("OneDrive MCP server listening at %s", *httpAddr)
 
 		// Create a custom multiplexer

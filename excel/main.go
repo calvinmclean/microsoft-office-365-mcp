@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -683,8 +684,24 @@ func convertToCSV(data [][]any) (string, error) {
 	return builder.String(), nil
 }
 
+func statelessHTTPFromEnv() (bool, error) {
+	value, ok := os.LookupEnv("MCP_STATELESS_HTTP")
+	if !ok {
+		return false, nil
+	}
+	stateless, err := strconv.ParseBool(value)
+	if err != nil {
+		return false, fmt.Errorf("invalid MCP_STATELESS_HTTP value %q: %w", value, err)
+	}
+	return stateless, nil
+}
+
 func main() {
 	flag.Parse()
+	stateless, err := statelessHTTPFromEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
 	telemetry := usage.New("microsoft-excel", "Microsoft Excel", "microsoft")
 
 	// Create server factory that extracts token from each request
@@ -770,7 +787,7 @@ func main() {
 	}
 
 	if *httpAddr != "" {
-		mcpHandler := mcp.NewStreamableHTTPHandler(serverFactory, nil)
+		mcpHandler := mcp.NewStreamableHTTPHandler(serverFactory, &mcp.StreamableHTTPOptions{Stateless: stateless})
 		log.Printf("Excel MCP server listening at %s", *httpAddr)
 
 		// Create a custom multiplexer
